@@ -7,6 +7,22 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   avatar: { type: String, default: '' },
   profilePicture: { type: String, default: '' },
+  interactionStats: {
+    readingSpeed: { type: Number, default: 0 },
+    highlightUsage: { type: Number, default: 0 },
+    discussionEngagement: { type: Number, default: 0 },
+  },
+  likedBooks: [{ type: String }],
+  dislikedBooks: [{ type: String }],
+  recommendationProfile: {
+    dominantGenres: [{ type: String }],
+    scoreBlend: {
+      readingSpeed: { type: Number, default: 0 },
+      highlightUsage: { type: Number, default: 0 },
+      discussionEngagement: { type: Number, default: 0 },
+    },
+    lastCalibratedAt: { type: Date, default: null },
+  },
   readingHistory: [{
     book: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' },
     progress: { type: Number, default: 0 },

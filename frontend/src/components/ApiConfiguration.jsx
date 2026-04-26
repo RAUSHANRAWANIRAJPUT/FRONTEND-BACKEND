@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Globe, X, Save, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
+const DEFAULT_API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
 const ApiConfiguration = ({ isOpen, onClose }) => {
   const [apiUrl, setApiUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -98,7 +100,7 @@ const ApiConfiguration = ({ isOpen, onClose }) => {
                       type="text"
                       value={apiUrl}
                       onChange={(e) => setApiUrl(e.target.value)}
-                      placeholder="e.g. http://10.158.80.218:5000/api"
+                      placeholder={`e.g. ${DEFAULT_API_URL}`}
                       className="w-full rounded-2xl border border-[#1f3b26] bg-[#08110b] px-5 py-4 text-sm text-[#f0fdf4] transition placeholder:text-[#2d3f34] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                     />
                     {apiUrl && (
@@ -108,7 +110,7 @@ const ApiConfiguration = ({ isOpen, onClose }) => {
                     )}
                   </div>
                   <p className="mt-2 text-[11px] text-[#4ade80]">
-                    Current default: <code className="rounded bg-[#08110b] px-1 py-0.5 border border-[#16261b]">http://192.168.1.39:5000/api</code>
+                    Current default: <code className="rounded bg-[#08110b] px-1 py-0.5 border border-[#16261b]">{DEFAULT_API_URL}</code>
                   </p>
                 </div>
 

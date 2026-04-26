@@ -1,73 +1,69 @@
 import React from 'react';
-import { BookOpen, Globe, MessageCircle, Monitor, Mail } from 'lucide-react';
+import { BookOpen, Globe, Mail, MessageCircle, Monitor } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          {/* Brand */}
+    <footer className="border-t border-[rgba(212,166,58,0.12)] bg-[#050c19] pt-16 pb-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 grid grid-cols-1 gap-12 md:grid-cols-4">
           <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center mb-6">
-              <div className="bg-primary-600 p-2 rounded-xl text-white mr-2">
+            <div className="mb-6 flex items-center">
+              <div className="mr-2 rounded-xl border border-[rgba(212,166,58,0.18)] bg-[rgba(10,18,36,0.9)] p-2 text-[#f3d58a]">
                 <BookOpen size={20} />
               </div>
-              <span className="text-xl font-bold text-gray-900 leading-none">ReadTogether</span>
+              <span className="text-xl font-semibold leading-none text-[#f8fbff]">ReadTogether</span>
             </div>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              The collaborative book club platform where readers grow together. Discover, discuss, and track your reading journey.
+            <p className="text-sm leading-relaxed text-[#9aabc8]">
+              A calm reading workspace for recommendations, discussion, and structured AI support.
             </p>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-6">Platform</h3>
+            <h3 className="mb-6 font-semibold text-[#f8fbff]">Platform</h3>
             <ul className="space-y-4">
-              <li><a href="#" className="text-gray-500 hover:text-primary-600 transition-colors text-sm">Explore Clubs</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-primary-600 transition-colors text-sm">AI Recommendations</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-primary-600 transition-colors text-sm">Popular Books</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-primary-600 transition-colors text-sm">Community Feed</a></li>
+              <li><a href="#" className="text-sm text-[#9aabc8] transition-colors hover:text-[#f8fbff]">Explore Clubs</a></li>
+              <li><a href="#" className="text-sm text-[#9aabc8] transition-colors hover:text-[#f8fbff]">AI Librarian</a></li>
+              <li><a href="#" className="text-sm text-[#9aabc8] transition-colors hover:text-[#f8fbff]">Reading Dashboard</a></li>
+              <li><a href="#" className="text-sm text-[#9aabc8] transition-colors hover:text-[#f8fbff]">Community Feed</a></li>
             </ul>
           </div>
 
-          {/* About */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-6">About</h3>
+            <h3 className="mb-6 font-semibold text-[#f8fbff]">About</h3>
             <ul className="space-y-4">
-              <li><a href="#" className="text-gray-500 hover:text-primary-600 transition-colors text-sm">Our Mission</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-primary-600 transition-colors text-sm">Privacy Policy</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-primary-600 transition-colors text-sm">Terms of Service</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-primary-600 transition-colors text-sm">Help Center</a></li>
+              <li><a href="#" className="text-sm text-[#9aabc8] transition-colors hover:text-[#f8fbff]">Our Mission</a></li>
+              <li><a href="#" className="text-sm text-[#9aabc8] transition-colors hover:text-[#f8fbff]">Privacy Policy</a></li>
+              <li><a href="#" className="text-sm text-[#9aabc8] transition-colors hover:text-[#f8fbff]">Terms of Service</a></li>
+              <li><a href="#" className="text-sm text-[#9aabc8] transition-colors hover:text-[#f8fbff]">Help Center</a></li>
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-6">Contact</h3>
+            <h3 className="mb-6 font-semibold text-[#f8fbff]">Contact</h3>
             <div className="space-y-4">
-              <p className="text-gray-500 text-sm">Join our newsletter for the latest book updates.</p>
+              <p className="text-sm text-[#9aabc8]">Join the product updates list for new AI reading features.</p>
               <div className="flex max-w-sm">
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   placeholder="Enter email"
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-l-lg focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                  className="flex-1 rounded-l-lg border border-[rgba(212,166,58,0.16)] bg-[rgba(10,18,36,0.92)] px-4 py-2 text-sm text-[#f8fbff] focus:border-[rgba(212,166,58,0.45)] focus:outline-none"
                 />
-                <button className="bg-primary-600 text-white px-4 py-2 rounded-r-lg text-sm font-medium hover:bg-primary-700 transition-colors">
+                <button className="rounded-r-lg bg-primary-600 px-4 py-2 text-sm font-medium text-[#0d1930] transition-colors hover:bg-primary-500">
                   Join
                 </button>
               </div>
               <div className="flex space-x-4 pt-2">
-                <a href="#" className="text-gray-400 hover:text-primary-600 transition-colors"><Globe size={20} /></a>
-                <a href="#" className="text-gray-400 hover:text-primary-600 transition-colors"><MessageCircle size={20} /></a>
-                <a href="#" className="text-gray-400 hover:text-primary-600 transition-colors"><Monitor size={20} /></a>
+                <a href="#" className="text-[#7b8cab] transition-colors hover:text-[#f8fbff]"><Globe size={20} /></a>
+                <a href="#" className="text-[#7b8cab] transition-colors hover:text-[#f8fbff]"><MessageCircle size={20} /></a>
+                <a href="#" className="text-[#7b8cab] transition-colors hover:text-[#f8fbff]"><Monitor size={20} /></a>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-50 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-          <p>© 2026 ReadTogether Platform. All rights reserved.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
+        <div className="flex flex-col items-center justify-between border-t border-[rgba(166,186,220,0.12)] pt-8 text-sm text-[#7b8cab] md:flex-row">
+          <p>© 2026 ReadTogether. All rights reserved.</p>
+          <div className="mt-4 flex space-x-6 md:mt-0">
             <span className="flex items-center"><Mail size={14} className="mr-2" /> support@readtogether.com</span>
           </div>
         </div>
