@@ -11,9 +11,19 @@ const NotesCategoryPage = ({ category, setActivePage }) => {
   // Fallback category if none is provided
   const displayCategory = category || 'Notes';
 
+  // Map the frontend display category to the backend "type"
+  const getNoteType = (cat) => {
+    if (cat === 'Theme Notes') return 'theme';
+    if (cat === 'Discussion Notes') return 'discussion';
+    if (cat === 'Personal Reflections') return 'reflection';
+    return 'theme'; // fallback
+  };
+
+  const noteType = getNoteType(displayCategory);
+
   const fetchNotes = async () => {
     try {
-      const response = await fetch(`http://localhost:5050/api/notes?category=${encodeURIComponent(displayCategory)}`);
+      const response = await fetch(`http://localhost:5050/api/notes?type=${noteType}`);
       if (!response.ok) {
         throw new Error('Failed to fetch notes');
       }
@@ -47,7 +57,7 @@ const NotesCategoryPage = ({ category, setActivePage }) => {
         body: JSON.stringify({
           title,
           content,
-          category: displayCategory,
+          type: noteType,
         }),
       });
 

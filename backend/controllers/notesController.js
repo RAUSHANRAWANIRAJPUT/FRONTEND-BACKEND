@@ -1,12 +1,12 @@
 const Note = require('../models/Note');
 
-// Get notes by category
-const getNotesByCategory = async (req, res) => {
+// Get notes by type
+const getNotesByType = async (req, res) => {
   try {
-    const { category } = req.query;
+    const { type } = req.query;
     let query = {};
-    if (category) {
-      query.category = category;
+    if (type) {
+      query.type = type;
     }
     const notes = await Note.find(query).sort({ createdAt: -1 });
     res.json(notes);
@@ -19,16 +19,16 @@ const getNotesByCategory = async (req, res) => {
 // Create a new note
 const createNote = async (req, res) => {
   try {
-    const { title, content, category } = req.body;
+    const { title, content, type } = req.body;
 
-    if (!title || !content || !category) {
-      return res.status(400).json({ msg: 'Please provide title, content, and category' });
+    if (!title || !content || !type) {
+      return res.status(400).json({ msg: 'Please provide title, content, and type' });
     }
 
     const newNote = new Note({
       title,
       content,
-      category,
+      type,
     });
 
     const note = await newNote.save();
@@ -40,6 +40,6 @@ const createNote = async (req, res) => {
 };
 
 module.exports = {
-  getNotesByCategory,
+  getNotesByType,
   createNote,
 };

@@ -9,10 +9,10 @@ const NoteSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  category: {
+  type: {
     type: String,
     required: true,
-    enum: ['Theme Notes', 'Discussion Notes', 'Personal Reflections'],
+    enum: ['theme', 'discussion', 'reflection'],
   },
   createdAt: {
     type: Date,

@@ -3,9 +3,9 @@ const router = express.Router();
 const notesController = require('../controllers/notesController');
 
 // @route   GET /api/notes
-// @desc    Get notes by category
+// @desc    Get notes by type
 // @access  Public (for simplicity, but can add auth later)
-router.get('/', notesController.getNotesByCategory);
+router.get('/', notesController.getNotesByType);
 
 // @route   POST /api/notes
 // @desc    Create a new note
