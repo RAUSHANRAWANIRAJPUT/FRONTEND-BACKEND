@@ -13,6 +13,7 @@ const progressRoutes = require('./routes/progress');
 const contributorRoutes = require('./routes/contributors');
 const inviteRoutes = require('./routes/invite');
 const aiRoutes = require('./routes/ai');
+const notesRoutes = require('./routes/notes');
 const aiController = require('./controllers/aiController');
 const { seedDemoData } = require('./utils/demoSeed');
 
@@ -37,6 +38,7 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/contributors', contributorRoutes);
 app.use('/api/invite', inviteRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/notes', notesRoutes);
 app.post('/api/ask', aiController.askLibrarian);
 
 io.on('connection', (socket) => {

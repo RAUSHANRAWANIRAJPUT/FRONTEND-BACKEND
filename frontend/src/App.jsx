@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import BookDetailsPage from './pages/BookDetailsPage';
 import AIFeatures from './pages/AIFeatures';
 import ApiConfiguration from './components/ApiConfiguration';
+import NotesCategoryPage from './pages/NotesCategoryPage';
 import { workspaceBooks } from './lib/readingWorkspaceData';
 
 const USER_STORAGE_KEY = 'readtogether_user';
@@ -36,6 +37,7 @@ function App() {
   const [authMode, setAuthMode] = useState('login');
   const [isApiSettingsOpen, setIsApiSettingsOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(workspaceBooks[0]);
+  const [activeNoteCategory, setActiveNoteCategory] = useState(null);
 
   const toggleApiSettings = () => setIsApiSettingsOpen((prev) => !prev);
 
@@ -59,6 +61,11 @@ function App() {
   const handleOpenBook = (book) => {
     setSelectedBook(book || workspaceBooks[0]);
     setActivePage('book-details');
+  };
+
+  const handleOpenNoteCategory = (category) => {
+    setActiveNoteCategory(category);
+    setActivePage('note-category');
   };
 
   const renderPage = () => {
@@ -100,6 +107,14 @@ function App() {
             currentView="notes"
             onOpenBook={handleOpenBook}
             selectedBook={selectedBook}
+            setActivePage={setActivePage}
+            onOpenNoteCategory={handleOpenNoteCategory}
+          />
+        );
+      case 'note-category':
+        return (
+          <NotesCategoryPage
+            category={activeNoteCategory}
             setActivePage={setActivePage}
           />
         );

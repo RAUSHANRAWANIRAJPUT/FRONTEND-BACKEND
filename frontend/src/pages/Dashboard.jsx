@@ -118,7 +118,7 @@ const sectionConfig = {
   },
 };
 
-const Dashboard = ({ currentView = 'dashboard', onOpenBook, selectedBook, setActivePage }) => {
+const Dashboard = ({ currentView = 'dashboard', onOpenBook, selectedBook, setActivePage, onOpenNoteCategory }) => {
   const config = sectionConfig[currentView] || sectionConfig.dashboard;
   const featuredBooks = workspaceBooks;
 
@@ -147,16 +147,17 @@ const Dashboard = ({ currentView = 'dashboard', onOpenBook, selectedBook, setAct
       return (
         <div className="grid gap-5 lg:grid-cols-3">
           {noteCards.map((item) => (
-            <div
+            <button
               key={item.title}
-              className="rounded-[1.8rem] border border-[rgba(212,166,58,0.14)] bg-[rgba(8,16,32,0.92)] p-6"
+              onClick={() => onOpenNoteCategory && onOpenNoteCategory(item.title)}
+              className="text-left flex flex-col rounded-[1.8rem] border border-[rgba(212,166,58,0.14)] bg-[rgba(8,16,32,0.92)] p-6 transition-all hover:bg-[rgba(15,26,46,0.96)] hover:border-[rgba(212,166,58,0.32)]"
             >
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[rgba(212,166,58,0.16)] bg-[rgba(15,26,46,0.96)] text-[#f3d58a]">
                 <NotebookPen size={20} />
               </div>
               <h3 className="text-xl font-bold text-[#fff8eb]">{item.title}</h3>
               <p className="mt-3 text-sm leading-7 text-[#c8b99a]">{item.body}</p>
-            </div>
+            </button>
           ))}
         </div>
       );
