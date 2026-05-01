@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getStoredToken } from './auth';
 
 const LOCAL_API_FALLBACKS = [
   'http://localhost:5050/api',
@@ -61,6 +62,8 @@ const syncActiveApiUrl = (nextApiBaseUrl) => {
   }
 
   activeApiBaseUrl = normalizedApiUrl;
+  apiBaseUrl = normalizedApiUrl;
+  socketServerUrl = normalizedApiUrl.replace(/\/api\/?$/, '');
   apiClient.defaults.baseURL = normalizedApiUrl;
 
   if (typeof window !== 'undefined') {
@@ -68,8 +71,8 @@ const syncActiveApiUrl = (nextApiBaseUrl) => {
   }
 };
 
-export const apiBaseUrl = activeApiBaseUrl;
-export const socketServerUrl = activeApiBaseUrl.replace(/\/api\/?$/, '');
+export let apiBaseUrl = activeApiBaseUrl;
+export let socketServerUrl = activeApiBaseUrl.replace(/\/api\/?$/, '');
 
 export const apiClient = axios.create({
   baseURL: activeApiBaseUrl,
@@ -78,6 +81,81 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+export const setAuthToken = (token) => {
+  if (token) {
+    apiClient.defaults.headers.common.Authorization = `Bearer ${token}`;
+    return;
+  }
+
+  delete apiClient.defaults.headers.common.Authorization;
+};
+
+const savedToken = getStoredToken();
+
+if (savedToken) {
+  setAuthToken(savedToken);
+}
+
+apiClient.interceptors.request.use((config) => {
+  const token = getStoredToken();
+  config.headers = config.headers || {};
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else if (config.headers?.Authorization) {
+    delete config.headers.Authorization;
+  }
+
+  return config;
+});
+
+export const authApi = {
+  signup(payload) {
+    return apiClient.post('/auth/signup', payload);
+  },
+  login(payload) {
+    return apiClient.post('/auth/login', payload);
+  },
+  getMe() {
+    return apiClient.get('/auth/me');
+  },
+};
+
+export const notesApi = {
+  getByType(type) {
+    return apiClient.get('/notes', {
+      params: { type },
+    });
+  },
+  create(payload) {
+    return apiClient.post('/notes', payload);
+  },
+};
+
+export const discussionApi = {
+  getMessages(roomId) {
+    return apiClient.get(`/discussions/${roomId}/messages`);
+  },
+};
+
+export const adminApi = {
+  getUsers() {
+    return apiClient.get('/admin/users');
+  },
+  deleteUser(userId) {
+    return apiClient.delete(`/admin/users/${userId}`);
+  },
+  updateUserRole(userId, role) {
+    return apiClient.patch(`/admin/users/${userId}/role`, { role });
+  },
+  getNotes() {
+    return apiClient.get('/admin/notes');
+  },
+  deleteNote(noteId) {
+    return apiClient.delete(`/admin/notes/${noteId}`);
+  },
+};
 
 const shouldRetryWithFallback = (error) => {
   if (error.config?.skipBaseUrlFallback) {

@@ -39,14 +39,17 @@ const dashboardCards = [
 
 const noteCards = [
   {
+    type: 'theme',
     title: 'Theme Notes',
     body: 'Track recurring ideas, motifs, and emotional shifts while you read.',
   },
   {
+    type: 'discussion',
     title: 'Discussion Notes',
     body: 'Save talking points for your next club session without leaving the reading flow.',
   },
   {
+    type: 'reflection',
     title: 'Personal Reflections',
     body: 'Keep a private layer of highlights, reactions, and interpretation.',
   },
@@ -149,7 +152,7 @@ const Dashboard = ({ currentView = 'dashboard', onOpenBook, selectedBook, setAct
           {noteCards.map((item) => (
             <button
               key={item.title}
-              onClick={() => onOpenNoteCategory && onOpenNoteCategory(item.title)}
+              onClick={() => onOpenNoteCategory && onOpenNoteCategory(item)}
               className="text-left flex flex-col rounded-[1.8rem] border border-[rgba(212,166,58,0.14)] bg-[rgba(8,16,32,0.92)] p-6 transition-all hover:bg-[rgba(15,26,46,0.96)] hover:border-[rgba(212,166,58,0.32)]"
             >
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[rgba(212,166,58,0.16)] bg-[rgba(15,26,46,0.96)] text-[#f3d58a]">

@@ -7,12 +7,12 @@ import {
   Library,
   LogOut,
   NotebookPen,
+  Shield,
   Settings,
   Sparkles,
 } from 'lucide-react';
-import { aiQuickSuggestions } from '../lib/readingWorkspaceData';
 
-const navItems = [
+const baseNavItems = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
   { id: 'clubs', name: 'My Books', icon: BookMarked },
   { id: 'library', name: 'Library', icon: Library },
@@ -21,6 +21,9 @@ const navItems = [
 ];
 
 const Sidebar = ({ activePage, setActivePage, onSignOut, user }) => {
+  const navItems = user?.role === 'admin'
+    ? [{ id: 'admin-dashboard', name: 'Admin', icon: Shield }, ...baseNavItems]
+    : baseNavItems;
   const activeIndex = navItems.findIndex(item => item.id === activePage);
 
   return (
@@ -127,4 +130,3 @@ const Sidebar = ({ activePage, setActivePage, onSignOut, user }) => {
 };
 
 export default Sidebar;
-

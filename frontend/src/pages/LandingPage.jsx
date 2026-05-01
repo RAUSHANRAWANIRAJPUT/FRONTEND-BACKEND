@@ -69,10 +69,10 @@ const LandingPage = ({ setActivePage, user, onOpenAuth }) => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button 
-                    onClick={() => (user ? setActivePage('dashboard') : onOpenAuth('signup'))}
+                    onClick={() => (user ? setActivePage(user.role === 'admin' ? 'admin-dashboard' : 'dashboard') : onOpenAuth('signup'))}
                     className="btn-primary flex items-center justify-center"
                 >
-                  {user ? 'Open Dashboard' : 'Get Started'} <ArrowRight size={18} className="ml-2" />
+                  {user ? (user.role === 'admin' ? 'Open Admin Dashboard' : 'Open Dashboard') : 'Get Started'} <ArrowRight size={18} className="ml-2" />
                 </button>
                 <button 
                     onClick={() => setActivePage('clubs')}

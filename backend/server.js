@@ -14,7 +14,14 @@ const contributorRoutes = require('./routes/contributors');
 const inviteRoutes = require('./routes/invite');
 const aiRoutes = require('./routes/ai');
 const notesRoutes = require('./routes/notes');
+const discussionRoutes = require('./routes/discussions');
+const adminRoutes = require('./routes/admin');
 const aiController = require('./controllers/aiController');
+const DiscussionMessage = require('./models/DiscussionMessage');
+const {
+  normalizeRoomId,
+  serializeDiscussionMessage,
+} = require('./controllers/discussionController');
 const { seedDemoData } = require('./utils/demoSeed');
 
 const app = express();
@@ -39,13 +46,136 @@ app.use('/api/contributors', contributorRoutes);
 app.use('/api/invite', inviteRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/notes', notesRoutes);
+app.use('/api/discussions', discussionRoutes);
+app.use('/api/admin', adminRoutes);
 app.post('/api/ask', aiController.askLibrarian);
+
+const discussionRoomMembers = new Map();
+
+const buildDiscussionRoomKey = (roomId) => `discussion:${roomId}`;
+
+const serializeRoomUsers = (roomId) => {
+  const roomMembers = discussionRoomMembers.get(roomId);
+
+  if (!roomMembers) {
+    return [];
+  }
+
+  return Array.from(roomMembers.values()).map((member) => ({
+    socketId: member.socketId,
+    userId: member.userId,
+    senderName: member.senderName,
+  }));
+};
+
+const emitDiscussionRoomUsers = (io, roomId) => {
+  io.to(buildDiscussionRoomKey(roomId)).emit('discussion_room_users_updated', {
+    roomId,
+    users: serializeRoomUsers(roomId),
+  });
+};
+
+const removeSocketFromDiscussionRoom = (io, socket) => {
+  const roomId = socket.data?.discussionRoomId;
+
+  if (!roomId) {
+    return;
+  }
+
+  const roomMembers = discussionRoomMembers.get(roomId);
+
+  if (roomMembers) {
+    roomMembers.delete(socket.id);
+
+    if (roomMembers.size === 0) {
+      discussionRoomMembers.delete(roomId);
+    }
+  }
+
+  socket.leave(buildDiscussionRoomKey(roomId));
+  delete socket.data.discussionRoomId;
+  delete socket.data.discussionSenderName;
+  delete socket.data.discussionUserId;
+
+  emitDiscussionRoomUsers(io, roomId);
+};
 
 io.on('connection', (socket) => {
   socket.on('join_club', (clubId) => {
     if (clubId) {
       socket.join(`club:${clubId}`);
     }
+  });
+
+  socket.on('join_discussion_room', ({ roomId, senderName, userId } = {}, callback = () => {}) => {
+    const normalizedRoomId = normalizeRoomId(roomId);
+    const trimmedSenderName = String(senderName || '').trim();
+
+    if (!normalizedRoomId || !trimmedSenderName) {
+      callback({ success: false, message: 'roomId and senderName are required.' });
+      return;
+    }
+
+    removeSocketFromDiscussionRoom(io, socket);
+
+    socket.join(buildDiscussionRoomKey(normalizedRoomId));
+    socket.data.discussionRoomId = normalizedRoomId;
+    socket.data.discussionSenderName = trimmedSenderName;
+    socket.data.discussionUserId = String(userId || '').trim();
+
+    const roomMembers = discussionRoomMembers.get(normalizedRoomId) || new Map();
+    roomMembers.set(socket.id, {
+      socketId: socket.id,
+      userId: socket.data.discussionUserId,
+      senderName: trimmedSenderName,
+    });
+    discussionRoomMembers.set(normalizedRoomId, roomMembers);
+
+    emitDiscussionRoomUsers(io, normalizedRoomId);
+
+    callback({
+      success: true,
+      roomId: normalizedRoomId,
+      users: serializeRoomUsers(normalizedRoomId),
+    });
+  });
+
+  socket.on('leave_discussion_room', (_payload = {}, callback = () => {}) => {
+    const previousRoomId = socket.data?.discussionRoomId || null;
+    removeSocketFromDiscussionRoom(io, socket);
+    callback({ success: true, roomId: previousRoomId });
+  });
+
+  socket.on('send_discussion_message', async ({ roomId, senderName, userId, text } = {}, callback = () => {}) => {
+    try {
+      const normalizedRoomId = normalizeRoomId(roomId || socket.data?.discussionRoomId);
+      const trimmedSenderName = String(senderName || socket.data?.discussionSenderName || '').trim();
+      const trimmedUserId = String(userId || socket.data?.discussionUserId || '').trim();
+      const trimmedText = String(text || '').trim();
+
+      if (!normalizedRoomId || !trimmedSenderName || !trimmedText) {
+        callback({ success: false, message: 'roomId, senderName, and text are required.' });
+        return;
+      }
+
+      const message = await DiscussionMessage.create({
+        roomId: normalizedRoomId,
+        senderName: trimmedSenderName,
+        senderUserId: trimmedUserId,
+        text: trimmedText,
+      });
+
+      const payload = serializeDiscussionMessage(message);
+      io.to(buildDiscussionRoomKey(normalizedRoomId)).emit('discussion_message_created', payload);
+
+      callback({ success: true, message: payload });
+    } catch (error) {
+      callback({ success: false, message: 'Unable to send the discussion message.' });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    removeSocketFromDiscussionRoom(io, socket);
   });
 });
 

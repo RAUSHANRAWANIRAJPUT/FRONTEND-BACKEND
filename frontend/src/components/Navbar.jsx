@@ -3,9 +3,10 @@ import { Bell, LogOut, Menu, User, Wifi, X } from 'lucide-react';
 
 const Navbar = ({ activePage, setActivePage, onOpenApiSettings, onOpenAuth, onSignOut, isWorkspacePage, user }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const defaultWorkspacePage = user?.role === 'admin' ? 'admin-dashboard' : 'dashboard';
 
   const workspaceLinks = [
-    { name: 'Dashboard', id: 'dashboard' },
+    { name: user?.role === 'admin' ? 'Admin' : 'Dashboard', id: defaultWorkspacePage },
     { name: 'My Books', id: 'clubs' },
     { name: 'Library', id: 'library' },
   ];
@@ -101,10 +102,10 @@ const Navbar = ({ activePage, setActivePage, onOpenApiSettings, onOpenAuth, onSi
                   {user ? (
                     <>
                       <button
-                        onClick={() => setActivePage('dashboard')}
+                        onClick={() => setActivePage(defaultWorkspacePage)}
                         className="px-4 py-2 text-sm font-semibold text-[#f3d58a] hover:text-[#fff8eb]"
                       >
-                        Dashboard
+                        {user?.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
                       </button>
                       <button
                         onClick={onSignOut}
@@ -214,12 +215,12 @@ const Navbar = ({ activePage, setActivePage, onOpenApiSettings, onOpenAuth, onSi
                   <>
                     <button
                       onClick={() => {
-                        setActivePage('dashboard');
+                        setActivePage(defaultWorkspacePage);
                         setIsMenuOpen(false);
                       }}
                       className="block w-full rounded-xl px-3 py-2 text-left text-base font-semibold text-[#c6b892] hover:bg-[rgba(212,166,58,0.08)] hover:text-[#fff8eb]"
                     >
-                      Dashboard
+                      {user?.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
                     </button>
                     <button
                       onClick={() => {

@@ -141,9 +141,10 @@ const Layout = ({ children, activePage, setActivePage, onOpenApiSettings, onSign
       window.removeEventListener('mouseup', stopResizing);
     };
   }, [isResizing, resize, stopResizing]);
-  const workspacePages = ['dashboard', 'clubs', 'library', 'notes', 'book-details', 'ai', 'profile'];
+  const workspacePages = ['dashboard', 'clubs', 'library', 'notes', 'book-details', 'ai', 'profile', 'admin-dashboard'];
   const isWorkspacePage = workspacePages.includes(activePage);
   const pageTitles = {
+    'admin-dashboard': 'Admin Dashboard',
     dashboard: 'Dashboard',
     clubs: 'My Books',
     library: 'Library',

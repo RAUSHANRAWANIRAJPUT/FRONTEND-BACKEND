@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Globe, Monitor, ArrowLeft } from 'lucide-react';
+import toast from 'react-hot-toast';
 import heroImage from '../assets/hero.png';
+import { authApi } from '../lib/api';
 
 const authSlides = [
   {
@@ -27,6 +29,10 @@ const authSlides = [
 const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setIsLogin(initialMode !== 'signup');
@@ -40,11 +46,30 @@ const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
     return () => window.clearInterval(timer);
   }, []);
 
-  const handleSubmit = () => {
-    onAuthSuccess({
-      name: isLogin ? 'Reader' : 'New Reader',
-      email: 'reader@readtogether.local',
-    });
+  const handleSubmit = async () => {
+    if (!email || !password || (!isLogin && !name)) {
+      return toast.error('Please fill in all required fields.');
+    }
+
+    setIsLoading(true);
+    try {
+      const body = isLogin ? { email, password } : { name, email, password };
+      const response = isLogin ? await authApi.login(body) : await authApi.signup(body);
+      const data = response.data;
+      toast.success(isLogin ? 'Welcome back!' : 'Account created successfully!');
+      
+      onAuthSuccess({
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.role || data.user.role || 'user',
+        token: data.token,
+      });
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || 'Authentication failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -83,6 +108,8 @@ const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8d7d60]" size={18} />
                   <input
                     type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
                     className="w-full rounded-xl border border-[#d9ccb5] bg-[#fffdf8] py-3 pl-10 pr-4 text-[#17233c] placeholder:text-[#b3a487] transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   />
@@ -96,6 +123,8 @@ const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8d7d60]" size={18} />
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
                   className="w-full rounded-xl border border-[#d9ccb5] bg-[#fffdf8] py-3 pl-10 pr-4 text-[#17233c] placeholder:text-[#b3a487] transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                 />
@@ -108,6 +137,8 @@ const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8d7d60]" size={18} />
                 <input
                   type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="********"
                   className="w-full rounded-xl border border-[#d9ccb5] bg-[#fffdf8] py-3 pl-10 pr-4 text-[#17233c] placeholder:text-[#b3a487] transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                 />
@@ -117,9 +148,10 @@ const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
             <button
               type="button"
               onClick={handleSubmit}
-              className="w-full btn-primary py-4"
+              disabled={isLoading}
+              className="w-full btn-primary py-4 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {isLogin ? 'Sign In' : 'Create Account'}
+              {isLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
             </button>
           </form>
 

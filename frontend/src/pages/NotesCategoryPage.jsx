@@ -1,45 +1,122 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Save, NotebookPen } from 'lucide-react';
+import { notesApi } from '../lib/api';
+import DiscussionRoomPage from './DiscussionRoomPage';
 
-const NotesCategoryPage = ({ category, setActivePage }) => {
+const NOTE_CATEGORY_CONFIG = {
+  theme: {
+    type: 'theme',
+    title: 'Theme Notes',
+    emptyMessage: 'No theme notes found yet.',
+  },
+  discussion: {
+    type: 'discussion',
+    title: 'Discussion Notes',
+    emptyMessage: 'No discussion notes found yet.',
+  },
+  reflection: {
+    type: 'reflection',
+    title: 'Personal Reflections',
+    emptyMessage: 'No personal reflections found yet.',
+  },
+};
+
+const NOTE_CATEGORY_ALIASES = {
+  theme: 'theme',
+  'theme notes': 'theme',
+  discussion: 'discussion',
+  'discussion notes': 'discussion',
+  reflection: 'reflection',
+  reflections: 'reflection',
+  'personal reflection': 'reflection',
+  'personal reflections': 'reflection',
+};
+
+const resolveNoteCategory = (category) => {
+  if (category && typeof category === 'object') {
+    const normalizedType = NOTE_CATEGORY_ALIASES[String(category.type || '').trim().toLowerCase()];
+
+    if (normalizedType) {
+      return NOTE_CATEGORY_CONFIG[normalizedType];
+    }
+
+    const normalizedTitle = NOTE_CATEGORY_ALIASES[String(category.title || '').trim().toLowerCase()];
+    return normalizedTitle ? NOTE_CATEGORY_CONFIG[normalizedTitle] : null;
+  }
+
+  const normalizedCategory = NOTE_CATEGORY_ALIASES[String(category || '').trim().toLowerCase()];
+  return normalizedCategory ? NOTE_CATEGORY_CONFIG[normalizedCategory] : null;
+};
+
+const StandardNotesCategoryPage = ({ displayCategory, noteType, emptyMessage, setActivePage }) => {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fallback category if none is provided
-  const displayCategory = category || 'Notes';
-
-  // Map the frontend display category to the backend "type"
-  const getNoteType = (cat) => {
-    if (cat === 'Theme Notes') return 'theme';
-    if (cat === 'Discussion Notes') return 'discussion';
-    if (cat === 'Personal Reflections') return 'reflection';
-    return 'theme'; // fallback
-  };
-
-  const noteType = getNoteType(displayCategory);
-
-  const fetchNotes = async () => {
-    try {
-      const response = await fetch(`http://localhost:5050/api/notes?type=${noteType}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch notes');
-      }
-      const data = await response.json();
-      setNotes(data);
-    } catch (err) {
-      console.error('Error fetching notes:', err);
-    }
-  };
-
   useEffect(() => {
-    fetchNotes();
-  }, [displayCategory]);
+    let isActive = true;
+
+    const loadNotes = async () => {
+      if (!noteType) {
+        if (!isActive) {
+          return;
+        }
+
+        setNotes([]);
+        setError('Invalid note category.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (isActive) {
+        setIsLoading(true);
+      }
+
+      try {
+        const response = await notesApi.getByType(noteType);
+        const filteredNotes = Array.isArray(response.data)
+          ? response.data.filter((note) => note.type === noteType)
+          : [];
+
+        if (!isActive) {
+          return;
+        }
+
+        setNotes(filteredNotes);
+        setError('');
+      } catch (err) {
+        console.error('Error fetching notes:', err);
+
+        if (!isActive) {
+          return;
+        }
+
+        setError('Failed to load notes. Please try again.');
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadNotes();
+
+    return () => {
+      isActive = false;
+    };
+  }, [noteType]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!noteType) {
+      setError('Invalid note category.');
+      return;
+    }
+
     if (!title.trim() || !content.trim()) {
       setError('Please fill in both title and content.');
       return;
@@ -49,26 +126,21 @@ const NotesCategoryPage = ({ category, setActivePage }) => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5050/api/notes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title,
-          content,
-          type: noteType,
-        }),
+      const response = await notesApi.create({
+        title,
+        content,
+        type: noteType,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to save note');
+      const savedNote = response.data;
+
+      if (savedNote?.type !== noteType) {
+        throw new Error('Saved note type did not match the current category');
       }
 
-      // Reset form and refetch
+      setNotes((previousNotes) => [savedNote, ...previousNotes]);
       setTitle('');
       setContent('');
-      fetchNotes();
     } catch (err) {
       console.error('Error saving note:', err);
       setError('Failed to save note. Please try again.');
@@ -144,9 +216,13 @@ const NotesCategoryPage = ({ category, setActivePage }) => {
 
         {/* Notes List Section */}
         <div className="lg:col-span-2 space-y-5">
-          {notes.length === 0 ? (
+          {isLoading ? (
             <div className="flex h-48 items-center justify-center rounded-[1.8rem] border border-[rgba(212,166,58,0.08)] border-dashed bg-[rgba(8,16,32,0.4)]">
-              <p className="text-[#8e8164]">No notes found in this category.</p>
+              <p className="text-[#8e8164]">Loading notes...</p>
+            </div>
+          ) : notes.length === 0 ? (
+            <div className="flex h-48 items-center justify-center rounded-[1.8rem] border border-[rgba(212,166,58,0.08)] border-dashed bg-[rgba(8,16,32,0.4)]">
+              <p className="text-[#8e8164]">{emptyMessage}</p>
             </div>
           ) : (
             notes.map((note) => (
@@ -173,6 +249,26 @@ const NotesCategoryPage = ({ category, setActivePage }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+const NotesCategoryPage = ({ category, setActivePage, user }) => {
+  const resolvedCategory = resolveNoteCategory(category);
+  const displayCategory = resolvedCategory?.title || 'Notes';
+  const noteType = resolvedCategory?.type || null;
+  const emptyMessage = resolvedCategory?.emptyMessage || 'No notes found in this category.';
+
+  if (noteType === 'discussion') {
+    return <DiscussionRoomPage setActivePage={setActivePage} user={user} />;
+  }
+
+  return (
+    <StandardNotesCategoryPage
+      displayCategory={displayCategory}
+      noteType={noteType}
+      emptyMessage={emptyMessage}
+      setActivePage={setActivePage}
+    />
   );
 };
 
