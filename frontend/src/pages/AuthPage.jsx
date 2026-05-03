@@ -46,14 +46,21 @@ const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
     return () => window.clearInterval(timer);
   }, []);
 
-  const handleSubmit = async () => {
-    if (!email || !password || (!isLogin && !name)) {
+  const handleSubmit = async (event) => {
+    event?.preventDefault();
+
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
+    if (!trimmedEmail || !password || (!isLogin && !trimmedName)) {
       return toast.error('Please fill in all required fields.');
     }
 
     setIsLoading(true);
     try {
-      const body = isLogin ? { email, password } : { name, email, password };
+      const body = isLogin
+        ? { email: trimmedEmail, password }
+        : { name: trimmedName, email: trimmedEmail, password };
       const response = isLogin ? await authApi.login(body) : await authApi.signup(body);
       const data = response.data;
       toast.success(isLogin ? 'Welcome back!' : 'Account created successfully!');
@@ -100,7 +107,7 @@ const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
             </p>
           </div>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {!isLogin && (
               <div>
                 <label className="mb-2 block text-sm font-medium text-[#24314c]">Full Name</label>
@@ -146,8 +153,7 @@ const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
             </div>
 
             <button
-              type="button"
-              onClick={handleSubmit}
+              type="submit"
               disabled={isLoading}
               className="w-full btn-primary py-4 disabled:opacity-70 disabled:cursor-not-allowed"
             >
@@ -178,6 +184,7 @@ const AuthPage = ({ setActivePage, onAuthSuccess, initialMode = 'login' }) => {
           <p className="mt-8 text-center text-sm text-[#9a8b70]">
             {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
             <button
+              type="button"
               onClick={() => setIsLogin(!isLogin)}
               className="font-bold text-primary-600 hover:underline"
             >

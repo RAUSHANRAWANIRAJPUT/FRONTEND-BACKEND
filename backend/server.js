@@ -1,9 +1,10 @@
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const authRoutes = require('./routes/auth');
 const bookRoutes = require('./routes/books');
@@ -274,6 +275,10 @@ async function connectToMongo() {
 
 async function startServer() {
   try {
+    if (!process.env.JWT_SECRET?.trim()) {
+      throw new Error('Missing JWT_SECRET. Ensure backend/.env is present and loaded before starting the server.');
+    }
+
     await connectToMongo();
     await seedDemoData();
 

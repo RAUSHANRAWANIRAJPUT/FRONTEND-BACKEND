@@ -99,7 +99,7 @@ async function ensureRecommendationCatalog() {
       Book.findOneAndUpdate(
         { title: book.title, author: book.author },
         { $setOnInsert: book },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
+        { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
       )
     )
   );

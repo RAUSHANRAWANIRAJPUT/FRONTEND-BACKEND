@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Globe, X, Save, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-const DEFAULT_API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const DEFAULT_API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5050/api';
 
 const ApiConfiguration = ({ isOpen, onClose }) => {
   const [apiUrl, setApiUrl] = useState('');
