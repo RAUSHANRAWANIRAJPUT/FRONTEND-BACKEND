@@ -59,14 +59,17 @@ const libraryHighlights = [
   {
     title: 'Reflective Fiction',
     text: 'Curated books built around inner conflict, regret, identity, and emotional resonance.',
+    status: 'Coming Soon',
   },
   {
     title: 'AI & Ethics',
     text: 'Thoughtful science fiction and literary works that explore technology and empathy.',
+    status: 'Coming Soon',
   },
   {
     title: 'Habit & Growth',
     text: 'Clear, useful non-fiction for routines, focus, and better reading consistency.',
+    status: 'Coming Soon',
   },
 ];
 
@@ -140,6 +143,11 @@ const Dashboard = ({ currentView = 'dashboard', onOpenBook, selectedBook, setAct
               </div>
               <h3 className="text-xl font-bold text-[#fff8eb]">{item.title}</h3>
               <p className="mt-3 text-sm leading-7 text-[#c8b99a]">{item.text}</p>
+              <div className="mt-5">
+                <span className="inline-flex items-center rounded-full border border-[rgba(212,166,58,0.18)] bg-[rgba(15,26,46,0.96)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d7c49a]">
+                  {item.status}
+                </span>
+              </div>
             </div>
           ))}
         </div>
